@@ -1,0 +1,35 @@
+
+
+-  Pls follow below commands for kafka file system connector
+- make sure you are using kafka version kafka_2.10-0.10.0.0 or above. Old versions  dont have support for kafka connect.
+
+
+[root@oel64 oracle]# cd kafka_install/kafka_2.10-0.10.0.0
+[root@oel64 kafka_2.10-0.10.0.0]# bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+Created topic "test".
+
+[root@oel64 config]# echo -e "foo\nbar" > test.txt
+
+
+[root@oel64 kafka_2.10-0.10.0.0]# bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties config/connect-file-sink.properties
+[2018-03-08 11:54:05,480] INFO StandaloneConfig values:
+value.converter = class org.apache.kafka.connect.json.JsonConverter
+offset.storage.file.filename = /tmp/connect.offsets
+access.control.allow.methods =
+key.converter = class org.apache.kafka.connect.json.JsonConverter
+offset.flush.timeout.ms = 5000
+rest.port = 8083
+rest.advertised.port = null
+access.control.allow.origin =
+
+
+[root@oel64 kafka_2.10-0.10.0.0]# ls
+bin  config  libs  LICENSE  logs  NOTICE  site-docs  test.sink.txt  test.txt
+[root@oel64 kafka_2.10-0.10.0.0]# more test.sink.txt
+foo
+bar
+
+
+[root@oel64 kafka_2.10-0.10.0.0]# bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic connect-test --from-beginning --zookeeper localhost:2181
+{"schema":{"type":"string","optional":false},"payload":"foo"}
+{"schema":{"type":"string","optional":false},"payload":"bar"}
